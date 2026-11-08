@@ -1,11 +1,12 @@
 package com.example.locked_in.viewModel
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.locked_in.model.Comida
 
 class ComidaViewModel : ViewModel() {
 
-    val listaComidas: List<Comida> = listOf(
+    val listaComidas = mutableStateListOf(
         Comida(
             id = 1,
             nombre = "Pechuga de pollo",
@@ -71,4 +72,17 @@ class ComidaViewModel : ViewModel() {
             proteinas = 8
         )
     )
+
+    // Función para actualizar una comida existente
+    fun actualizarComida(comidaActualizada: Comida) {
+        val index = listaComidas.indexOfFirst { it.id == comidaActualizada.id }
+        if (index != -1) {
+            listaComidas[index] = comidaActualizada
+        }
+    }
+
+    // Función para añadir una comida nueva desde el formulario de crear
+    fun agregarComida(nuevaComida: Comida) {
+        listaComidas.add(nuevaComida)
+    }
 }

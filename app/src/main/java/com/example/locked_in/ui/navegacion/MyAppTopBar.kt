@@ -2,6 +2,7 @@ package com.example.locked_in.ui.navegacion
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,13 +26,15 @@ fun MyAppTopBar(
     TopAppBar(
         title = {
             Text(
-                text = when (currentRoute) {
-                    Rutas.HOME -> "Locked-In"
-                    Rutas.DIARIO -> "Mi Diario"
-                    Rutas.RECETAS -> "Recetas"
-                    Rutas.ENTRENO -> "Entrenamiento"
-                    Rutas.PERFIL -> "Mi Perfil"
-                    Rutas.DETALLE -> "Detalle de Receta"
+                text = when {
+                    currentRoute == Rutas.HOME -> "Locked-In"
+                    currentRoute == Rutas.DIARIO -> "Mi Diario"
+                    currentRoute == Rutas.RECETAS -> "Recetas"
+                    currentRoute == Rutas.ENTRENO -> "Entrenamiento"
+                    currentRoute == Rutas.PERFIL -> "Mi Perfil"
+                    currentRoute?.startsWith("detalle") == true -> "Receta"
+                    currentRoute == Rutas.COMIDA_CREAR -> "Crear Comida"
+                    currentRoute?.startsWith("comida_editar") == true -> "Editar Comida"
                     else -> "Locked-In"
                 },
                 style = MaterialTheme.typography.headlineLarge
@@ -44,6 +47,23 @@ fun MyAppTopBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver"
+                    )
+                }
+            }
+        },
+
+        actions = {
+            // Si estamos en la pantalla de detalle, mostramos el lápiz arriba a la derecha
+            if (currentRoute?.startsWith("detalle") == true) {
+                val recetaId = navBackStackEntry?.arguments?.getLong("recetaId") ?: 0L
+                IconButton(
+                    onClick = {
+                        navController.navigate(Rutas.comidaEditarConId(recetaId))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar receta"
                     )
                 }
             }

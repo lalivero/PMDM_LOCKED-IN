@@ -15,12 +15,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -42,6 +45,7 @@ import com.example.locked_in.viewModel.ComidaViewModel
 fun RecetasScreen(
     modifier: Modifier = Modifier,
     onRecetaClick: (Long) -> Unit,
+    onAddComidaClick: () -> Unit,
     comidaViewModel: ComidaViewModel = viewModel()
 ) {
     // 1. Estados para el buscador y las pestañas
@@ -67,78 +71,95 @@ fun RecetasScreen(
         comida.nombre.contains(textoBusqueda, ignoreCase = true)
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        // --- BARRA DE BÚSQUEDA CON LUPA ---
-        OutlinedTextField(
-            value = textoBusqueda,
-            onValueChange = { textoBusqueda = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            placeholder = { Text(text = "Buscar receta...") },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Buscar"
-                )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        // Selector de pestañas
-        TabRow(selectedTabIndex = tabSeleccionada) {
-            titulosTabs.forEachIndexed { index, titulo ->
-                Tab(
-                    selected = tabSeleccionada == index,
-                    onClick = { tabSeleccionada = index },
-                    text = { Text(text = titulo) }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Grilla de 2 columnas simétrica
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+    // Box para poder colocar el botón flotante (FAB)
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(listaFiltrada) { comida ->
-                val esFavorita = idsFavoritos.contains(comida.id)
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    ComidaCard(
-                        comida = comida,
-                        modifier = Modifier.clickable {
-                            // Convertimos el Int del ID a Long para cumplir con la ruta
-                            onRecetaClick(comida.id.toLong())
-                        }
+            // --- BARRA DE BÚSQUEDA CON LUPA ---
+            OutlinedTextField(
+                value = textoBusqueda,
+                onValueChange = { textoBusqueda = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                placeholder = { Text(text = "Buscar receta...") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar"
                     )
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
 
-                    IconButton(
-                        onClick = {
-                            if (esFavorita) {
-                                idsFavoritos.remove(comida.id)
-                            } else {
-                                idsFavoritos.add(comida.id)
+            // Selector de pestañas
+            TabRow(selectedTabIndex = tabSeleccionada) {
+                titulosTabs.forEachIndexed { index, titulo ->
+                    Tab(
+                        selected = tabSeleccionada == index,
+                        onClick = { tabSeleccionada = index },
+                        text = { Text(text = titulo) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Grilla de 2 columnas simétrica
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(listaFiltrada) { comida ->
+                    val esFavorita = idsFavoritos.contains(comida.id)
+
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        ComidaCard(
+                            comida = comida,
+                            modifier = Modifier.clickable {
+                                onRecetaClick(comida.id.toLong())
                             }
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (esFavorita) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorito",
-                            tint = if (esFavorita) Color.Red else Color.Gray
                         )
+
+                        IconButton(
+                            onClick = {
+                                if (esFavorita) {
+                                    idsFavoritos.remove(comida.id)
+                                } else {
+                                    idsFavoritos.add(comida.id)
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (esFavorita) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (esFavorita) Color.Red else Color.Gray
+                            )
+                        }
                     }
                 }
             }
+        }
+
+        // --- BOTÓN FLOTANTE (FAB) POSICIONADO CORRECTAMENTE ---
+        FloatingActionButton(
+            onClick = { onAddComidaClick() },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Añadir nueva comida"
+            )
         }
     }
 }
