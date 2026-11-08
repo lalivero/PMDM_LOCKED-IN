@@ -23,12 +23,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +50,7 @@ fun RecetasScreen(
 ) {
     // 1. Estados para el buscador y las pestañas
     var textoBusqueda by remember { mutableStateOf("") }
-    var tabSeleccionada by remember { mutableStateOf(0) }
+    var tabSeleccionada by remember { mutableIntStateOf(0) }
     val titulosTabs = listOf("Sugeridas", "Favoritas")
 
     // 2. Obtenemos las comidas desde ViewModel
@@ -95,7 +95,7 @@ fun RecetasScreen(
             )
 
             // Selector de pestañas
-            TabRow(selectedTabIndex = tabSeleccionada) {
+            PrimaryTabRow(selectedTabIndex = tabSeleccionada) {
                 titulosTabs.forEachIndexed { index, titulo ->
                     Tab(
                         selected = tabSeleccionada == index,
